@@ -1,6 +1,10 @@
 # KodeKloud Linux Basics: Networking
 
 ## Networking
+
+
+[KodeKloud Linux Basics Course Notes Table of Contents](https://github.com/pslucas0212/LinuxBasics).  
+
 #### DNS overview  
 You can add hostname and ip address to the /etc/hosts file.  This is the source of truth for the host where this configed.  The destination system may have a different name.  This is known as host resolution.  You can ping, but ping maybe disabled on the target system, so consider using nslookup or dig.  
   

@@ -101,20 +101,34 @@ www.google.com.		130	IN	A	142.250.191.132
   
   
 #### Switching and Routing
-How does server a reach server b.  We need a switch and an interface on both systems.  
+How does server A reach server B.  We need a switch and an interface on both systems.  
+To see interface names
 ```
 $ ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 00:50:56:ab:d4:22 brd ff:ff:ff:ff:ff:ff
+3: virbr0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:d8:45:21 brd ff:ff:ff:ff:ff:ff
+4: virbr0-nic: <BROADCAST,MULTICAST> mtu 1500 qdisc fq_codel master virbr0 state DOWN mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:d8:45:21 brd ff:ff:ff:ff:ff:ff
 ```
-Assign ip address to computer:  
+Assign ip address to computers to allow them to communicate on the switch
 ```
-$ ip addre add 192.168.1.10/24 dev eth0
+$ ip addr add 192.168.1.10/24 dev eth0
 ```
  
-Say wwe have another network with server c and server d, with a subnet 192.168.2.0 how do we reach the other network.  We use an intelligent (computer like device) called a router.  We connect the two networks via the router: 192.168.1.1 and 192.168.2.1.  We configure a gateway to route between the networks.   
+Say wwe have another network with server C and server D, with a subnet 192.168.2.0 how do we reach the other network.  We use an intelligent (computer like device) called a router.  We connect the two networks via the router and assign to IP address on the router: 192.168.1.1 and 192.168.2.1.  We configure a gateway to route between the networks (like a door to another room.   
   
-Run route command to see routing options for your Linux machine
+Run route command to see the kernel's routing table for your Linux machine
 ```
 $ route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         10.1.1.1        0.0.0.0         UG    202    0        0 eth0
+10.1.1.0        0.0.0.0         255.255.255.0   U     202    0        0 eth0
+10.1.10.0       edge.example.co 255.255.255.0   UG    0      0        0 eth0
 ```
 To add a route:
 ```
@@ -126,7 +140,20 @@ $ ip route add default via 192.168.1.1
 ```
 You could also 0.0.0.0 in the gateway field.  However if you have a public and private internet you will need a second router and gateway "link"
 
-To persist ip link, ip addr, ip addr, add these to the network interface file.
+Key Network commands
+To list and modify interfaces on the host;
+```
+$ ip link
+```
+To see ip addresses assigned to interfaces
+```
+$ ip addr
+```
+To add an ip address to an interface.  This examples assignes the ip address 192.168.1.10 to the device eth0 (ethernet nic)
+```
+$ ip addr add 192.168.1.10/24 dev eth0
+```
+These are only valid until the system is rebooted.  To make the settings persistent add a static ip address to the etc/sysconfig/network-scripts/ifcfg-ens192 in RHEL on Raspberry pi its in the /etc/dhcpcd.conf file
   
   
  #### Network Troubleshooting

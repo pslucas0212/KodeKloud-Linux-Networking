@@ -214,7 +214,8 @@ tcp        0      0 127.0.0.1:953           0.0.0.0:*               LISTEN
 tcp6       0      0 :::53                   :::*                    LISTEN     
 ```
 
- If web server for example is running try running the ip link command on the server
+ If web server for example is running try running the ip link command on the web server to if the interface is up.   
+  
  If the link is down, Bring link up with - $ ip link set dev <interface name> up
   
 

@@ -154,15 +154,63 @@ To add an ip address to an interface.  This examples assignes the ip address 192
 $ ip addr add 192.168.1.10/24 dev eth0
 ```
 These are only valid until the system is rebooted.  To make the settings persistent add a static ip address to the etc/sysconfig/network-scripts/ifcfg-ens192 in RHEL on Raspberry pi its in the /etc/dhcpcd.conf file
+
+To see routing table use:
+```
+$ ip route
+```
+To add a route use:
+```
+$ ip route add 192.168.1.0/24 via 192.168.2.1
+```
   
   
- #### Network Troubleshooting
+ ## Network Troubleshooting
  - time out error
     - run $ ip link to make sure interface link is up
+    ```
+    ip link
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 00:50:56:ab:d4:22 brd ff:ff:ff:ff:ff:ff
+3: virbr0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:d8:45:21 brd ff:ff:ff:ff:ff:ff
+4: virbr0-nic: <BROADCAST,MULTICAST> mtu 1500 qdisc fq_codel master virbr0 state DOWN mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:d8:45:21 brd ff:ff:ff:ff:ff:ff
+    ```
     - Check to resolve that hostname is resolving - $ nslookup <server hostname>
+    ```
+    nslookup ns01.example.com
+Server:		10.1.10.253
+Address:	10.1.10.253#53
+
+Name:	ns01.example.com
+Address: 10.1.1.254
+    ```
     - Ping remote server - $ ping <host-name> - not the best tool to check connectivity as some devices may have it disabled
+    ```
+    ping ns01.example.com
+PING ns01.example.com (10.1.1.254) 56(84) bytes of data.
+64 bytes from 10.1.1.254 (10.1.1.254): icmp_seq=1 ttl=63 time=0.524 ms
+64 bytes from 10.1.1.254 (10.1.1.254): icmp_seq=2 ttl=63 time=0.574 ms
+    ```
     - Run traceroute command to troubleshoot the routing - $ traceroute 192.168.2.5
+    ```
+     traceroute ns02.example.com
+traceroute to ns02.example.com (10.1.10.253), 30 hops max, 60 byte packets
+ 1  edge.example.com (10.1.1.253)  0.537 ms  0.427 ms  0.357 ms
+ 2  ns02.example.com (10.1.10.253)  0.587 ms !X  0.436 ms !X  0.411 ms !X
+    ```
     - On the server you can if a process is running on a particular port like port 80 - $ netstat -an | grep 80 | grep -i LISTEN
+    ```
+    $ netstat -an | grep 53 | grep -i LISTEN
+tcp        0      0 192.168.122.1:53        0.0.0.0:*               LISTEN     
+tcp        0      0 10.1.10.253:53          0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:53            0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:953           0.0.0.0:*               LISTEN     
+tcp6       0      0 :::53                   :::*                    LISTEN     
+    ```
     - If web server for example is running try running the ip link command on the server
     - Bring link up with - $ ip link set dev <interface name> up
   

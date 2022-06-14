@@ -16,14 +16,36 @@ If you add information to the /ect/hosts file, the system looks for hostname res
 You can change the order can be modified modifying the /etc/nsswitch.conf  
   
 What if you ping an address not in the /etc/hosts or DNS server.  You can add a second (multiple) name servers in the /etc/hosts file and your system will look there if the systems are not listed in /etc/hosts or your DNS server.
+
+You can change the order in whicn server names are resolved in the /etc/nsswitch.conf file
+```
+cat /etc/nsswitch.conf
+--
+hosts:    files dns
+--
+```
  
-##### Domain names  
-.com .net .edu .org .io define the domain "purpose"  
+This states that /etc/hosts is looked at first for a dns entry and the dns server
+
+You can also add a second dns server in your /etc/resolv.conf file to look at other dns servers
+```
+nameserver   192.168.1.100
+nameserver   8.8.8.8
+```
+
+You can also configure the DNS server to forward requests it can resolve to another DNS server
+
+### Domain names  
+.com .net .edu .org .io define the top leve domain and describe the intent or  "purpose"  
   
-Root -> . ; .com -> top level domain ; subdomaind -> www or maps or mail    
+Root -> . ; Top Level Domain name .com -> top level domain ; subdomain -> www or maps or mail    
   
 When asking for resolution, your system first goes to internal DNS.  If not found there then you are forwarded to an external DNS server and it is was forwared to different DNS serviers until the domain is resolved.   
 
+Your organization DNS server may point to a Root DNS server which points to .com DNS server which points a specific companies DNS like Google
+Speed up future requests, your company's DNS server may cache this informaion for a period of time.
+
+Adding search domains allows you to ping web and have mycompany.com appended to web -> web.mycompany.com
 Enable shortcut in /etc/resolv.conf
 ```
 nameserver   192.168.1.100
@@ -32,13 +54,50 @@ search       mycompany.com prod.mycompmy.com
   
 DNS Record Types   
 How records are stored in DNS:  
-A record types map hostname to an ip addresses 
+A record type map hostname to an ip addresses 
 AAAA record types map hostname to ipv6 addresses
 CNAME Record types maps one hostname to another  hostname  - name to name mapping   
+Record | Example name | IP Address
+-------|--------------|-----------
+A | web-server | 192.168.1.1
+AAAA | web-server | 2001:0db8:...7334
+CNAME | food.web-server | eat.web-server, hungry.web-server
 
-Other look up options:  
-- nslookup - doesnt look at /etc/hsts
-- dig 
+  
+Ping nay not be the right tool to check name resolution
+- nslookup doesn't use the /etc/hosts file. In this example my local dns server forwards the request toa public dns server
+```
+$ nslookup www.google.com
+Server:		10.1.1.254
+Address:	10.1.1.254#53
+
+Non-authoritative answer:
+Name:	www.google.com
+Address: 142.250.191.132
+```
+- dig same for dig as nslookup.  it ignores the /etc/hosts file
+```
+$ dig www.google.com
+
+; <<>> DiG 9.10.6 <<>> www.google.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 10766
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;www.google.com.			IN	A
+
+;; ANSWER SECTION:
+www.google.com.		130	IN	A	142.250.191.132
+
+;; Query time: 1069 msec
+;; SERVER: 10.1.1.254#53(10.1.1.254)
+;; WHEN: Tue Jun 14 17:32:17 CDT 2022
+;; MSG SIZE  rcvd: 59
+```
   
   
 #### Switching and Routing
